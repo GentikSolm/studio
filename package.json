@@ -10,11 +10,15 @@
   },
   "dependencies": {
     "@planetscale/database": "^1.13.0",
+    "@radix-ui/react-icons": "^1.3.0",
     "@t3-oss/env-nextjs": "^0.7.1",
+    "@tanstack/react-table": "^8.11.2",
     "clsx": "^2.0.0",
+    "lucide-react": "^0.303.0",
     "next": "14.0.4",
     "react": "^18",
     "react-dom": "^18",
+    "tailwindcss-animate": "^1.0.7",
     "zod": "^3.22.4"
   },
   "devDependencies": {
