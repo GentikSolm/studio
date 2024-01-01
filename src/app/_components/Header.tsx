@@ -1,4 +1,3 @@
-import { usePathname } from "next/navigation";
 import BreadCrumbs from "./BreadCrumbs";
 
 export const Header = () => {
