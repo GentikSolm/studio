@@ -58,7 +58,7 @@ export const Table = ({
       sorting,
     },
   });
-  console.log(sorting);
+  //https://ka-table.com/ ??
   return (
     <div>
       <table className="font-mono text-sm">

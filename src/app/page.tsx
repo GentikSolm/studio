@@ -10,7 +10,7 @@ export default async function Home() {
   return (
     <main className="flex h-full items-center justify-center pt-20 text-xl">
       <div>
-        <span className="font-semibold">Tables</span>
+        <span className="font-semibold">{env.DATABASE_NAME} Tables</span>
         <div className="pt-2">
           <ul className="flex flex-col gap-4 rounded-md border border-neutral-700 px-10 py-5">
             {tables.rows.map((r) => (
