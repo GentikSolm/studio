@@ -115,7 +115,7 @@ export const Table = ({
                       onMouseDown={header.getResizeHandler()}
                       onTouchStart={header.getResizeHandler()}
                       className={clsx(
-                        "absolute -right-2 top-0 z-10 h-full w-2 cursor-col-resize touch-none select-none",
+                        "absolute -right-2 top-0 z-10 h-full w-3 cursor-col-resize touch-none select-none",
                       )}
                     />
                   </div>
