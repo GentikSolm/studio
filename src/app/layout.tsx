@@ -17,15 +17,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="h-full w-full">
       <body
         className={clsx(
           inter.className,
-          "flex h-full flex-col bg-neutral-900 text-white",
+          "flex w-full h-full flex-col bg-neutral-900 text-white",
         )}
       >
         <Header />
-        <div className="flex-grow">{children}</div>
+        <div className="flex-grow overflow-hidden w-full">{children}</div>
       </body>
     </html>
   );

@@ -77,15 +77,19 @@ export const Table = ({
   }, [colSizeInfo]);
 
   return (
-    <div>
+    <div className="h-full w-full overflow-hidden ">
       <div
-        className="font-mono"
+        className="relative h-full w-full overflow-scroll font-mono"
         style={{
-          ...columnSizeVars, //Define column sizes on the <table> element
-          width: table.getTotalSize(),
+          ...columnSizeVars,
         }}
       >
-        <div>
+        <div
+          style={{
+            width: table.getTotalSize(),
+          }}
+          className="sticky top-0 z-10 w-full bg-neutral-900"
+        >
           {table.getHeaderGroups().map((headerGroup) => (
             <div key={headerGroup.id} className="flex">
               {headerGroup.headers.map((header) => {
