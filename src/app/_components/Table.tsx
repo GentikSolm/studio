@@ -38,8 +38,10 @@ export const Table = ({
               column.clearSorting();
             }}
           >
-            <span>{column.id}</span>
-            {icon}
+            <span className="w-full overflow-hidden truncate text-left">
+              {column.id}
+            </span>
+            <span className="h-4 w-4">{icon}</span>
           </button>
         );
       },
@@ -63,18 +65,18 @@ export const Table = ({
     },
   });
   const colSizeInfo = table.getState().columnSizingInfo;
+  const flatHeaders = table.getFlatHeaders();
   const columnSizeVars = useMemo(() => {
-    const headers = table.getFlatHeaders();
     const colSizes: { [key: string]: number } = {};
-    for (let i = 0; i < headers.length; i++) {
-      const header = headers[i]!;
+    for (let i = 0; i < flatHeaders.length; i++) {
+      const header = flatHeaders[i]!;
       colSizes[`--header-${header.id}-size`] = header.getSize();
       colSizes[`--col-${header.column.id}-size`] = header.column.getSize();
     }
     return colSizes;
     // For perf. stop complaining
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colSizeInfo]);
+  }, [colSizeInfo, flatHeaders]);
 
   return (
     <div className="h-full w-full overflow-hidden ">
