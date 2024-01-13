@@ -31,17 +31,6 @@ export const Table = ({
         id: "select-col",
         enableResizing: false,
         enableSorting: false,
-        header: ({ table }) => (
-          <div className="flex h-full w-full items-center justify-center">
-            <input
-              type="checkbox"
-              className="rounded-sm bg-neutral-500 text-orange-600 focus:ring-0 focus:ring-offset-0"
-              id="checkbox"
-              checked={table.getIsAllRowsSelected()}
-              onChange={table.getToggleAllRowsSelectedHandler()} //or getToggleAllPageRowsSelectedHandler
-            />
-          </div>
-        ),
       });
     }
     base.push(
@@ -138,12 +127,15 @@ export const Table = ({
                       key={header.id}
                       className="sticky left-0 top-0 z-20 border border-gray-600 bg-neutral-900 px-2.5 py-1.5"
                     >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                      <div className="flex h-full w-full items-center justify-center">
+                        <input
+                          type="checkbox"
+                          className="rounded-sm bg-neutral-500 text-orange-600 focus:ring-0 focus:ring-offset-0"
+                          id="checkbox"
+                          checked={!!Object.keys(rowSelection) ? table.getIsAllRowsSelected() : false}
+                          onChange={table.getToggleAllRowsSelectedHandler()}
+                        />
+                      </div>
                     </div>
                   );
                 }
