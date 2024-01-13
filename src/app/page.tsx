@@ -8,7 +8,7 @@ export default async function Home() {
     [env.DATABASE_NAME],
   );
   return (
-    <main className="flex h-full items-center justify-center pt-20 text-xl">
+    <main className="flex h-full items-center justify-center text-xl">
       <div>
         <span className="font-semibold">{env.DATABASE_NAME} Tables</span>
         <div className="pt-2">
@@ -17,10 +17,10 @@ export default async function Home() {
               <li key={r.TABLE_NAME}>
                 <Link
                   href={`/table/${ r.TABLE_NAME }`}
-                  className="flex transition-colors hover:bg-neutral-800 justify-between gap-5 rounded-md border border-neutral-700 px-3 py-2"
+                  className="flex font-mono transition-colors hover:bg-neutral-800 justify-between gap-5 rounded-md border border-neutral-700 px-3 py-2"
                 >
                   <span>{r.TABLE_NAME}</span>
-                  <span className='font-mono'>{r.TABLE_ROWS}</span>
+                  <span>{r.TABLE_ROWS}</span>
                 </Link>
               </li>
             ))}
