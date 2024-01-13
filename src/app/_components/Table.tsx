@@ -16,15 +16,18 @@ import { memo, useMemo, useState } from "react";
 export const Table = ({
   columns,
   data,
+  editable,
 }: {
   columns: string[];
   data: Record<string, unknown>[];
+  editable?: boolean;
 }) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-  const table = useReactTable({
-    columns: [
-      {
+  const cols = useMemo(() => {
+    const base = [] as ColumnDef<Record<string, any>>[];
+    if (editable) {
+      base.push({
         id: "select-col",
         enableResizing: false,
         enableSorting: false,
@@ -39,7 +42,9 @@ export const Table = ({
             />
           </div>
         ),
-      },
+      });
+    }
+    base.push(
       ...columns.map(
         (c) =>
           ({
@@ -79,7 +84,11 @@ export const Table = ({
             },
           }) as ColumnDef<Record<string, any>>,
       ),
-    ],
+    );
+    return base;
+  }, [columns, editable]);
+  const table = useReactTable({
+    columns: cols,
     //@ts-ignore might try and fix this later.
     data: data,
     onRowSelectionChange: setRowSelection,
@@ -127,7 +136,7 @@ export const Table = ({
                   return (
                     <div
                       key={header.id}
-                      className="sticky z-20 bg-neutral-900 left-0 top-0 border border-gray-600 px-2.5 py-1.5"
+                      className="sticky left-0 top-0 z-20 border border-gray-600 bg-neutral-900 px-2.5 py-1.5"
                     >
                       {header.isPlaceholder
                         ? null
@@ -188,7 +197,7 @@ function TableBody({ table }: { table: TableType<any> }) {
               return (
                 <div
                   key={cell.id}
-                  className="sticky bg-neutral-900 left-0 top-0 border border-gray-600 px-2.5 py-1.5"
+                  className="sticky left-0 top-0 border border-gray-600 bg-neutral-900 px-2.5 py-1.5"
                 >
                   <div className="flex h-full w-full items-center justify-center">
                     <input
