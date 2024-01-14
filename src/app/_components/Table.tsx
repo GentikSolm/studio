@@ -149,7 +149,7 @@ export const Table = ({
             ) : (
               <Trash2 className="h-4 w-4" aria-hidden="true" />
             )}
-            Delete {selectedCount} records
+            Delete {selectedCount} record{selectedCount > 1 && 's'}
           </button>
         )}
         <button
