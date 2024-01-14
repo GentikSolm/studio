@@ -1,8 +1,9 @@
 import clsx from "clsx";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Toaster } from "sonner";
 import "~/styles/globals.css";
-import { Header } from "./_components/Header";
+import { Providers } from "./_components/providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,11 +22,13 @@ export default function RootLayout({
       <body
         className={clsx(
           inter.className,
-          "flex w-full h-full flex-col bg-neutral-900 text-white",
+          "flex h-full w-full flex-col bg-neutral-900 text-white",
         )}
       >
-        <Header />
-        <div className="flex-grow overflow-hidden w-full">{children}</div>
+        <Toaster richColors />
+        <div className="w-full flex-grow overflow-hidden">
+          <Providers>{children}</Providers>
+        </div>
       </body>
     </html>
   );

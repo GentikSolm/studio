@@ -10,20 +10,42 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import clsx from "clsx";
-import { ChevronsUpDownIcon, SortAsc, SortDesc } from "lucide-react";
-import { memo, useMemo, useState } from "react";
+import {
+  ChevronsUpDownIcon,
+  Loader2,
+  RefreshCw,
+  SortAsc,
+  SortDesc,
+  Trash2,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { memo, useMemo, useState, useTransition } from "react";
+import { trpc } from "./providers";
+import { toast } from "sonner";
 
 export const Table = ({
+  tableName,
   columns,
   data,
   editable,
 }: {
+  tableName: string;
   columns: string[];
   data: Record<string, unknown>[];
   editable?: boolean;
 }) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [isT, startT] = useTransition();
+  const router = useRouter();
+  const deleteRows = trpc.tables.rows.delete.useMutation({
+    onSuccess: (res) => {
+      toast.success(`Deleted ${res} rows`);
+      setRowSelection({});
+      startT(() => router.refresh());
+    },
+  });
+
   const cols = useMemo(() => {
     const base = [] as ColumnDef<Record<string, any>>[];
     if (editable) {
@@ -103,9 +125,43 @@ export const Table = ({
     // For perf. stop complaining
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colSizeInfo, flatHeaders]);
-
+  const selectedCount = Object.keys(rowSelection).length;
   return (
     <div className="h-full w-full overflow-hidden">
+      <div className="flex w-full justify-end gap-2 border-b-2 border-neutral-700 p-2 text-white">
+        {selectedCount > 0 && (
+          <button
+            onClick={() => {
+              deleteRows.mutate({
+                table: tableName,
+                rows: table
+                  .getSelectedRowModel()
+                  .flatRows.map((r) => r.original),
+              });
+            }}
+            disabled={isT || deleteRows.isLoading}
+            title="Delete"
+            type="button"
+            className="inline-flex items-center gap-x-2 rounded-md bg-red-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+          >
+            {deleteRows.isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            ) : (
+              <Trash2 className="h-4 w-4" aria-hidden="true" />
+            )}
+            Delete {selectedCount} records
+          </button>
+        )}
+        <button
+          disabled={isT}
+          onClick={() => {
+            startT(() => router.refresh());
+          }}
+          className="rounded-md border border-neutral-600 px-2.5 py-3"
+        >
+          <RefreshCw className={clsx("h-4 w-4", isT && "animate-spin")} />
+        </button>
+      </div>
       <div
         className="relative h-full w-full overflow-auto font-mono"
         style={{
@@ -125,7 +181,7 @@ export const Table = ({
                   return (
                     <div
                       key={header.id}
-                      className="sticky left-0 top-0 z-20 border border-gray-600 bg-neutral-900 px-2.5 py-1.5"
+                      className="sticky left-0 top-0 z-20 -mt-1 border border-gray-600 bg-neutral-900 px-2.5 py-1.5"
                     >
                       <div className="flex h-full w-full items-center justify-center">
                         <input
@@ -133,9 +189,7 @@ export const Table = ({
                           className="rounded-sm bg-neutral-500 text-orange-600 focus:ring-0 focus:ring-offset-0"
                           id="checkbox"
                           checked={
-                            !!Object.keys(rowSelection)
-                              ? table.getIsAllRowsSelected()
-                              : false
+                            Object.keys(rowSelection).length === data.length
                           }
                           onChange={table.getToggleAllRowsSelectedHandler()}
                         />
@@ -146,7 +200,7 @@ export const Table = ({
                 return (
                   <div
                     key={header.id}
-                    className="relative border border-gray-600 px-2 py-1.5"
+                    className="relative -mt-1 border border-gray-600 px-2 py-1.5"
                     style={{
                       width: `calc(var(--header-${header?.id}-size) * 1px)`,
                     }}
@@ -220,7 +274,7 @@ function TableBody({ table }: { table: TableType<any> }) {
             return (
               <div
                 key={cell.id}
-                className="overflow-hidden truncate border border-gray-600 px-1.5 py-1.5 text-sm"
+                className="overflow-hidden truncate border border-gray-600 px-1.5 py-1 text-sm"
                 style={{
                   width: `calc(var(--col-${cell.column.id}-size) * 1px)`,
                 }}
