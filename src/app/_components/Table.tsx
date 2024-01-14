@@ -12,7 +12,9 @@ import {
 import clsx from "clsx";
 import {
   ChevronsUpDownIcon,
+  ListPlus,
   Loader2,
+  Plus,
   RefreshCw,
   SortAsc,
   SortDesc,
@@ -36,6 +38,7 @@ export const Table = ({
 }) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [showInsertRow, setShowInsertRow] = useState(false);
   const [isT, startT] = useTransition();
   const router = useRouter();
   const deleteRows = trpc.tables.rows.delete.useMutation({
@@ -149,17 +152,36 @@ export const Table = ({
             ) : (
               <Trash2 className="h-4 w-4" aria-hidden="true" />
             )}
-            Delete {selectedCount} record{selectedCount > 1 && 's'}
+            Delete {selectedCount} record{selectedCount > 1 && "s"}
           </button>
         )}
         <button
           disabled={isT}
           onClick={() => {
+            setShowInsertRow((s) => !s);
+          }}
+          className="rounded-md border hover:bg-neutral-800 border-neutral-600 px-2.5 py-2"
+        >
+          <Plus
+            className={clsx(
+              "h-5 w-5 transition-transform",
+              showInsertRow && "rotate-45",
+            )}
+          />
+        </button>
+        <button
+          disabled={isT}
+          onClick={() => {
             startT(() => router.refresh());
           }}
-          className="rounded-md border border-neutral-600 px-2.5 py-3"
+          className="rounded-md border hover:bg-neutral-800 border-neutral-600 px-2.5 py-3"
         >
-          <RefreshCw className={clsx("h-4 w-4", isT && "animate-spin")} />
+          <RefreshCw
+            className={clsx(
+              "h-4 w-4",
+              isT && "animate-spin",
+            )}
+          />
         </button>
       </div>
       <div
