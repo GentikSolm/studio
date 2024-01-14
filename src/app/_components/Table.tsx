@@ -132,7 +132,11 @@ export const Table = ({
                           type="checkbox"
                           className="rounded-sm bg-neutral-500 text-orange-600 focus:ring-0 focus:ring-offset-0"
                           id="checkbox"
-                          checked={!!Object.keys(rowSelection) ? table.getIsAllRowsSelected() : false}
+                          checked={
+                            !!Object.keys(rowSelection)
+                              ? table.getIsAllRowsSelected()
+                              : false
+                          }
                           onChange={table.getToggleAllRowsSelectedHandler()}
                         />
                       </div>
@@ -183,18 +187,28 @@ function TableBody({ table }: { table: TableType<any> }) {
   return (
     <div>
       {table.getRowModel().rows.map((row) => (
-        <div key={row.id} className="flex w-fit">
+        <div
+          key={row.id}
+          className={clsx(
+            "flex w-fit",
+            row.getIsSelected() && "bg-neutral-800",
+          )}
+        >
           {row.getVisibleCells().map((cell) => {
             if (cell.column.id === "select-col") {
               return (
                 <div
                   key={cell.id}
-                  className="sticky left-0 top-0 border border-gray-600 bg-neutral-900 px-2.5 py-1.5"
+                  onClick={row.getToggleSelectedHandler()}
+                  className={clsx(
+                    "sticky left-0 top-0 cursor-pointer border border-gray-600 px-2.5 py-1.5",
+                    row.getIsSelected() ? "bg-neutral-800" : "bg-neutral-900 ",
+                  )}
                 >
                   <div className="flex h-full w-full items-center justify-center">
                     <input
                       type="checkbox"
-                      className="rounded-sm bg-neutral-500 text-orange-600 focus:ring-0 focus:ring-offset-0"
+                      className="cursor-pointer rounded-sm bg-neutral-500 text-orange-600 focus:ring-0 focus:ring-offset-0"
                       id="checkbox"
                       checked={row.getIsSelected()}
                       onChange={row.getToggleSelectedHandler()}
