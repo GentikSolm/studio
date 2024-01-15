@@ -10,20 +10,9 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import clsx from "clsx";
-import {
-  ChevronsUpDownIcon,
-  ListPlus,
-  Loader2,
-  Plus,
-  RefreshCw,
-  SortAsc,
-  SortDesc,
-  Trash2,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import { memo, useMemo, useState, useTransition } from "react";
-import { trpc } from "./providers";
-import { toast } from "sonner";
+import { ChevronsUpDownIcon, SortAsc, SortDesc } from "lucide-react";
+import { memo, useMemo, useState } from "react";
+import TableButtons from "./TableButtons";
 
 export const Table = ({
   tableName,
@@ -38,16 +27,6 @@ export const Table = ({
 }) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-  const [showInsertRow, setShowInsertRow] = useState(false);
-  const [isT, startT] = useTransition();
-  const router = useRouter();
-  const deleteRows = trpc.tables.rows.delete.useMutation({
-    onSuccess: (res) => {
-      toast.success(`Deleted ${res} rows`);
-      setRowSelection({});
-      startT(() => router.refresh());
-    },
-  });
 
   const cols = useMemo(() => {
     const base = [] as ColumnDef<Record<string, any>>[];
@@ -128,132 +107,87 @@ export const Table = ({
     // For perf. stop complaining
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colSizeInfo, flatHeaders]);
-  const selectedCount = Object.keys(rowSelection).length;
+  
   return (
-    <div className="h-full w-full overflow-hidden">
-      <div className="flex w-full justify-end gap-2 border-b-2 border-neutral-700 p-2 text-white">
-        {selectedCount > 0 && (
-          <button
-            onClick={() => {
-              deleteRows.mutate({
-                table: tableName,
-                rows: table
-                  .getSelectedRowModel()
-                  .flatRows.map((r) => r.original),
-              });
-            }}
-            disabled={isT || deleteRows.isLoading}
-            title="Delete"
-            type="button"
-            className="inline-flex items-center gap-x-2 rounded-md bg-red-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
-          >
-            {deleteRows.isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            ) : (
-              <Trash2 className="h-4 w-4" aria-hidden="true" />
-            )}
-            Delete {selectedCount} record{selectedCount > 1 && "s"}
-          </button>
-        )}
-        <button
-          disabled={isT}
-          onClick={() => {
-            setShowInsertRow((s) => !s);
-          }}
-          className="rounded-md border hover:bg-neutral-800 border-neutral-600 px-2.5 py-2"
-        >
-          <Plus
-            className={clsx(
-              "h-5 w-5 transition-transform",
-              showInsertRow && "rotate-45",
-            )}
-          />
-        </button>
-        <button
-          disabled={isT}
-          onClick={() => {
-            startT(() => router.refresh());
-          }}
-          className="rounded-md border hover:bg-neutral-800 border-neutral-600 px-2.5 py-3"
-        >
-          <RefreshCw
-            className={clsx(
-              "h-4 w-4",
-              isT && "animate-spin",
-            )}
-          />
-        </button>
-      </div>
-      <div
-        className="relative h-full w-full overflow-auto font-mono"
-        style={{
-          ...columnSizeVars,
-        }}
-      >
+    <div className="relative flex h-full flex-col">
+      <TableButtons
+        table={table}
+        tableName={tableName}
+        setRowSelection={setRowSelection}
+        rowSelection={rowSelection}
+      />
+      <div className="h-full w-full overflow-hidden">
         <div
+          className="relative h-full w-full overflow-auto font-mono"
           style={{
-            width: table.getTotalSize(),
+            ...columnSizeVars,
           }}
-          className="sticky top-0 z-10 w-full bg-neutral-900"
         >
-          {table.getHeaderGroups().map((headerGroup) => (
-            <div key={headerGroup.id} className="relative flex">
-              {headerGroup.headers.map((header) => {
-                if (header.id === "select-col") {
+          <div
+            style={{
+              width: table.getTotalSize(),
+            }}
+            className="sticky top-0 z-10 w-full bg-neutral-900"
+          >
+            {table.getHeaderGroups().map((headerGroup) => (
+              <div key={headerGroup.id} className="relative flex">
+                {headerGroup.headers.map((header) => {
+                  if (header.id === "select-col") {
+                    return (
+                      <div
+                        key={header.id}
+                        className="sticky left-0 top-0 z-20 -mt-2 border border-gray-600 bg-neutral-900 px-2.5 py-1.5"
+                      >
+                        <div className="flex h-full w-full items-center justify-center">
+                          <input
+                            type="checkbox"
+                            className="rounded-sm bg-neutral-500 text-orange-600 focus:ring-0 focus:ring-offset-0"
+                            id="checkbox"
+                            checked={
+                              Object.keys(rowSelection).length === data.length
+                            }
+                            onChange={table.getToggleAllRowsSelectedHandler()}
+                          />
+                        </div>
+                      </div>
+                    );
+                  }
                   return (
                     <div
                       key={header.id}
-                      className="sticky left-0 top-0 z-20 -mt-1 border border-gray-600 bg-neutral-900 px-2.5 py-1.5"
+                      className="relative -mt-2 border border-gray-600 px-2 py-1.5"
+                      style={{
+                        width: `calc(var(--header-${header?.id}-size) * 1px)`,
+                      }}
                     >
-                      <div className="flex h-full w-full items-center justify-center">
-                        <input
-                          type="checkbox"
-                          className="rounded-sm bg-neutral-500 text-orange-600 focus:ring-0 focus:ring-offset-0"
-                          id="checkbox"
-                          checked={
-                            Object.keys(rowSelection).length === data.length
-                          }
-                          onChange={table.getToggleAllRowsSelectedHandler()}
-                        />
-                      </div>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+
+                      <div
+                        onDoubleClick={() => header.column.resetSize()}
+                        onMouseDown={header.getResizeHandler()}
+                        onTouchStart={header.getResizeHandler()}
+                        className={clsx(
+                          "absolute -right-2 top-0 z-10 h-full w-3 cursor-col-resize touch-none select-none",
+                        )}
+                      />
                     </div>
                   );
-                }
-                return (
-                  <div
-                    key={header.id}
-                    className="relative -mt-1 border border-gray-600 px-2 py-1.5"
-                    style={{
-                      width: `calc(var(--header-${header?.id}-size) * 1px)`,
-                    }}
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-
-                    <div
-                      onDoubleClick={() => header.column.resetSize()}
-                      onMouseDown={header.getResizeHandler()}
-                      onTouchStart={header.getResizeHandler()}
-                      className={clsx(
-                        "absolute -right-2 top-0 z-10 h-full w-3 cursor-col-resize touch-none select-none",
-                      )}
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          ))}
+                })}
+              </div>
+            ))}
+          </div>
+          {/* When resizing any column we will render this special memoized version of our table body */}
+          {table.getState().columnSizingInfo.isResizingColumn ? (
+            <MemoizedTableBody table={table} />
+          ) : (
+            <TableBody table={table} />
+          )}
         </div>
-        {/* When resizing any column we will render this special memoized version of our table body */}
-        {table.getState().columnSizingInfo.isResizingColumn ? (
-          <MemoizedTableBody table={table} />
-        ) : (
-          <TableBody table={table} />
-        )}
       </div>
     </div>
   );
